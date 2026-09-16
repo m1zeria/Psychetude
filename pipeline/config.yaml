@@ -1,0 +1,29 @@
+dataset:
+  # PhysioNet EEGMMIDB, subject 1, run 3 (motor imagery)
+  subject: 1
+  run: 3
+  raw_dir: data/raw
+
+preprocessing:
+  l_freq: 0.5          # high-pass
+  h_freq: 45.0         # low-pass (below mains noise)
+  notch_freq: 60.0     # 50 for EU, 60 for US
+  notch_q: 30.0
+  resample_hz: 250.0
+  window_seconds: 2.0  # FFT window length
+  overlap: 0.5         # 50% overlap between windows
+
+fft:
+  window_fn: hann
+  bands:
+    delta: [0.5, 4.0]
+    theta: [4.0, 8.0]
+    alpha: [8.0, 13.0]
+    beta:  [13.0, 30.0]
+    gamma: [30.0, 45.0]
+  # How to reduce FFT bins within a band to a single number.
+  # mean | sum | log_mean
+  reduce: log_mean
+
+output:
+  path: data/processed/sample.json
