@@ -1,17 +1,18 @@
+# edit here, not in code.
+
 dataset:
-  # PhysioNet EEGMMIDB, subject 1, run 3 (motor imagery)
   subject: 1
   run: 3
   raw_dir: data/raw
 
 preprocessing:
-  l_freq: 0.5          # high-pass
-  h_freq: 45.0         # low-pass (below mains noise)
-  notch_freq: 60.0     # 50 for EU, 60 for US
+  l_freq: 0.5
+  h_freq: 45.0
+  notch_freq: 60.0
   notch_q: 30.0
   resample_hz: 250.0
-  window_seconds: 2.0  # FFT window length
-  overlap: 0.5         # 50% overlap between windows
+  window_seconds: 2.0
+  overlap: 0.5
 
 fft:
   window_fn: hann
@@ -21,9 +22,31 @@ fft:
     alpha: [8.0, 13.0]
     beta:  [13.0, 30.0]
     gamma: [30.0, 45.0]
-  # How to reduce FFT bins within a band to a single number.
-  # mean | sum | log_mean
   reduce: log_mean
+
+# sonification design. values here are mirrored in
+# web/src/audio/mapping.js and documented in docs/mapping.md.
+sonification:
+  # expected range of log10(mean psd) for normalization.
+  # tighten or widen per-dataset; see docs/limitations.md.
+  norm_lo: -12.0
+  norm_hi: -7.0
+
+  # register center per band, midi note number.
+  # c2=36 c3=48 c4=60 c5=72 c6=84
+  registers:
+    delta: 36
+    theta: 48
+    alpha: 60
+    beta:  72
+    gamma: 84
+
+  # max semitone offset from register center.
+  # 3 leaves 6 semitones of clear space between adjacent registers.
+  modulation_semitones: 3
+
+  # gain floor. ensures every band is faintly audible.
+  gain_floor: 0.1
 
 output:
   path: data/processed/sample.json
