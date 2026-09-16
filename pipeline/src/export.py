@@ -1,6 +1,7 @@
 """Phase 4 — export per-electrode, per-window band power to JSON."""
 import json
 from pathlib import Path
+import numpy as np
 
 
 def build_payload(
@@ -17,15 +18,16 @@ def build_payload(
     """
     frames = []
     for w, bp in zip(windows, band_powers):
-        frames.append(
-            {
-                "t": round(w["start_sec"], 4),
-                "bands": {
-                    b: [round(float(v), 5) for v in bp[b]]
-                    for b in bands
-                },
-            }
-        )
+        frame_bands = {}
+        for b in bands:
+            # vectorized: round all channels at once instead of list comprehension
+            arr = np.asarray(bp[b], dtype=np.float32)
+            frame_bands[b] = np.round(arr, 5).tolist()
+        
+        frames.append({
+            "t": round(w["start_sec"], 4),
+            "bands": frame_bands,
+        })
 
     return {
         "meta": {
