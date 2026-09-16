@@ -10,17 +10,8 @@ pitch is mapped linearly in MIDI space, which is logarithmic in Hz:
     freq = 440 * 2 ** ((midi - 69) / 12)
 
 this is standard practice in sonification because human pitch perception is
-approximately logarithmic. linear Hz mapping produces compressed high-end motion and wasted low-end motion. thus logarithmic sonification is the sweet spot.
-
-## Proposed band → parameter map
-
-| EEG band | Sound parameter      | Rationale |
-|----------|----------------------|-------------------------------------|
-| delta    | amplitude            |                                     |
-| theta    | duration             |                                     |
-| alpha    | pitch (log-frequency)|                                     |
-| beta     | FM modulation index  |                                     |
-| gamma    | harmonicity          |                                     |
+approximately logarithmic. linear Hz mapping produces compressed high-end motion 
+and wasted low-end motion. thus logarithmic sonification is the sweet spot.
 
 ## normalisation
 
