@@ -1,6 +1,6 @@
 # sonification mapping
 
-this document is the *design contract* for how EEG band power becomes sound
+this document outlines the study design through which EEG band power becomes sound.
 update it whenever the code in `web/src/audio/mapping.js` changes
 
 ## principle: log-frequency pitch
