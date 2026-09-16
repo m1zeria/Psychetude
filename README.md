@@ -12,9 +12,9 @@ and played through a clickable, rotatable 3D brain model in the browser.
 1. real EEG recordings are preprocessed and FFT'd into canonical frequency
    bands (delta, theta, alpha, beta, gamma) per electrode
 2. band power is mapped to pitch, timbre, and dynamics using a log-frequency
-   scheme — see `docs/mapping.md`.
+   scheme — see `docs/mapping.md`
 3. the browser renders a 3D brain; clicking an electrode triggers that
-   region's "voice" through Tone.js.
+   region's "voice" through Tone.js
 
 ## why
 
