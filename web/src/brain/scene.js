@@ -35,10 +35,15 @@ export function initScene(canvas) {
   controls.maxDistance = 8;
   controls.enablePan = false;
 
+  // debounce resize to avoid thrashing renderer
+  let resizeTimeout;
   window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }, 200);
   });
 
   return { scene, camera, renderer, controls };
