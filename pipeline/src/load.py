@@ -1,6 +1,7 @@
 """Phase 1 — load raw EEG, filter, epoch into time windows."""
 from pathlib import Path
 import mne
+import numpy as np
 
 
 def load_raw(raw_path: Path) -> mne.io.BaseRaw:
@@ -41,14 +42,18 @@ def epoch(raw: mne.io.BaseRaw, cfg: dict):
     win_samples = int(win * sfreq)
     step_samples = int(step * sfreq)
 
+    # pre-allocate: fetch entire signal once to avoid repeated get_data() calls
+    data = raw.get_data()  # shape: (n_channels, n_samples)
+
     windows = []
     for start in range(0, n_samples - win_samples + 1, step_samples):
-        data = raw.get_data(start=start, stop=start + win_samples)
+        # slice views instead of copying
+        window_data = data[:, start:start + win_samples]
         windows.append(
             {
                 "start_sample": start,
                 "start_sec": start / sfreq,
-                "data": data,  # shape: (n_channels, win_samples)
+                "data": window_data,
             }
         )
     return windows
