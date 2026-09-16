@@ -1,5 +1,4 @@
 /**
- * Phase 3 — sonification mapping.
  *
  * DESIGN INTENT (fill in after reading sonification literature):
  *   - alpha power → pitch (log-frequency mapping)
@@ -8,11 +7,11 @@
  *   - delta power → amplitude
  *   - gamma power → harmonicity (roughness / metallic quality)
  *
- * Log-frequency pitch mapping: given normalised power p ∈ [0,1],
+ * log-frequency pitch mapping: given normalised power p ∈ [0,1],
  *   midi = midiMin + p * (midiMax - midiMin)
  *   freq = 440 * 2 ** ((midi - 69) / 12)
  *
- * Keeps pitch ratios perceptually uniform — the point of using log-frequency
+ * keeps pitch ratios perceptually uniform — the point of using log-frequency
  * mapping rather than linear Hz.
  */
 
@@ -27,8 +26,8 @@ function norm(value, lo, hi) {
 export function bandPowerToSound(bands, channelIndex = 0) {
   const pick = (b) => bands[b]?.[channelIndex] ?? 0;
 
-  // Band power arrives as log10(mean PSD) from the pipeline.
-  // Observed range roughly [-12, -7].
+  // band power arrives as log10(mean PSD) from the pipeline
+  // observed range roughly [-12, -7].
   const alpha = norm(pick('alpha'), -12, -7);
   const beta  = norm(pick('beta'),  -12, -7);
   const theta = norm(pick('theta'), -12, -7);
