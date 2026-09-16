@@ -1,0 +1,54 @@
+"""Phase 1 — load raw EEG, filter, epoch into time windows."""
+from pathlib import Path
+import mne
+
+
+def load_raw(raw_path: Path) -> mne.io.BaseRaw:
+    """Load a pre-saved MNE file (e.g. .fif) or download via mne.datasets."""
+    return mne.io.read_raw_fif(raw_path, preload=True)
+
+
+def preprocess(raw: mne.io.BaseRaw, cfg: dict) -> mne.io.BaseRaw:
+    """Band-pass + notch filter, then resample."""
+    pre = cfg["preprocessing"]
+
+    raw = raw.copy()
+    raw.filter(
+        l_freq=pre["l_freq"],
+        h_freq=pre["h_freq"],
+        fir_design="firwin",
+        verbose=False,
+    )
+    raw.notch_filter(
+        freqs=pre["notch_freq"],
+        Q=pre["notch_q"],
+        verbose=False,
+    )
+    if pre.get("resample_hz") and raw.info["sfreq"] != pre["resample_hz"]:
+        raw.resample(pre["resample_hz"], verbose=False)
+
+    return raw
+
+
+def epoch(raw: mne.io.BaseRaw, cfg: dict):
+    """Slice into fixed-length overlapping windows across the whole recording."""
+    pre = cfg["preprocessing"]
+    win = pre["window_seconds"]
+    step = win * (1 - pre["overlap"])
+
+    sfreq = raw.info["sfreq"]
+    n_samples = raw.n_times
+    win_samples = int(win * sfreq)
+    step_samples = int(step * sfreq)
+
+    windows = []
+    for start in range(0, n_samples - win_samples + 1, step_samples):
+        data = raw.get_data(start=start, stop=start + win_samples)
+        windows.append(
+            {
+                "start_sample": start,
+                "start_sec": start / sfreq,
+                "data": data,  # shape: (n_channels, win_samples)
+            }
+        )
+    return windows
