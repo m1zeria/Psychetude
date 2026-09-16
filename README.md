@@ -1,45 +1,50 @@
-# Psychetude
-A brain wave sonification instrument.
+# psychetude
+a brain wave sonification instrument.
 
-### Etymology
+### etymology
 from *psyche* (mind) + *étude* (study)
 
-Real EEG band power is mapped to musical parameters using Fast Fourier Transforms (FFTs)
+real EEG band power is mapped to musical parameters using Fast Fourier Transforms (FFTs)
 and played through a clickable, rotatable 3D brain model in the browser.
 
-## What it does
+## what it does
 
-1. Real EEG recordings are preprocessed and FFT'd into canonical frequency
-   bands (delta, theta, alpha, beta, gamma) per electrode.
-2. Band power is mapped to pitch, timbre, and dynamics using a log-frequency
-   scheme grounded in the sonification literature — see `docs/mapping.md`.
-3. The browser renders a 3D brain; clicking an electrode triggers that
+1. real EEG recordings are preprocessed and FFT'd into canonical frequency
+   bands (delta, theta, alpha, beta, gamma) per electrode
+2. band power is mapped to pitch, timbre, and dynamics using a log-frequency
+   scheme — see `docs/mapping.md`.
+3. the browser renders a 3D brain; clicking an electrode triggers that
    region's "voice" through Tone.js.
 
-## Why
+## why
 
-Most EEG sonification demos hand-wave the mapping step. Psychetude treats the
-band-power → sound mapping as a first-class design problem and documents it,
-so the result is a small instrument. Interactivity and accessibility are also priorities; anyone can 'play' the brain.
+most EEG sonification demos hand-wave the mapping step. psychetude treats the
+band-power -> sound mapping as a first-class design problem and documents it,
+so the result is a small instrument. interactivity and accessibility are also 
+priorities; anyone can 'play' the brain
 
-## Structure
+this is also a personal project linking my interest in music, programming and
+neuroscience. for neuroscience as a discipline to become more accessible to
+the general public through something as profound as music is my goal
 
-- `pipeline/` — Python. Loads EEG (MNE), FFTs to band power, exports JSON.
-- `web/` — Vite + Three.js + Tone.js front-end.
-- `docs/` — design notes, especially the sonification mapping.
+## structure
 
-## Status
+- `pipeline/` — python. loads EEG (MNE), FFTs to band power, exports JSON
+- `web/` — vite + Three.js + Tone.js front-end
+- `docs/` — design notes, especially the sonification mapping
 
-Early build. Phases 0–4 (data → JSON) and 5–6 (brain → sound) are scaffolded.
+## status
 
-## Getting started
+early build. phases 0–4 (data → JSON) and 5–6 (brain → sound) are scaffolded
 
-### Pipeline
+## getting started
+
+### pipeline
 
 ```bash
 cd pipeline
 python -m venv .venv
 source .venv/bin/activate      # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-# Place a raw .fif in pipeline/data/raw/, then:
+# place a raw .fif in pipeline/data/raw/, then:
 python scripts/run_pipeline.py
