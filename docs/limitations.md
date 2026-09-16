@@ -62,6 +62,11 @@ only that it is defensible on perceptual grounds, and better-motivated
 than a linear Hz mapping. see `mapping.md` for the design and
 `citations.md` for what motivates it.
 
+the fixed-register scheme rests on auditory scene analysis
+(bregman) for the claim that stable registers aid voice tracking.
+this is a theoretical claim, not an empirical one about this
+specific mapping.
+
 ### arbitrary normalisation range
 
 band power is normalised against the range [-12, -7] in log10(mean PSD).
@@ -69,13 +74,26 @@ this range is based on observation of typical EEG recordings, not a
 principled derivation. it will need tuning per dataset and possibly per
 subject. a future version should compute the range from the data itself.
 
-### no harmonic or scale constraints
+### modulation depth is a design choice
 
-notes are not snapped to a scale or key. the result is a continuous
-pitch field, which is expressive but can sound dissonant. this is a
-deliberate choice (see log), not an oversight, but it means the output
-is not "music" in the conventional sense.
+±3 semitones of within-register modulation is a defensible choice
+(non-overlapping registers) but not an optimized one. listener
+testing could show ±2 is better for legibility, or ±4 for
+expressiveness. the current value is a starting point.
 
+### raw mode is not pleasant
+
+raw mode produces unsnapped, unquantised pitches. simultaneous
+voices will frequently sound dissonant. this is intended. raw mode
+exposes data structure, not a rendering of it. but it means the
+default listening experience in raw mode is not musical.
+
+### the chord is dense
+
+five simultaneous voices is at the edge of what listeners can track
+as separate sources, especially untrained listeners. bregman's
+streaming principles suggest five is feasible with strong register
+cues (which we have), but this is untested for our specific design.
 ---
 
 ## application-level limitations
@@ -97,18 +115,22 @@ with consumer hardware will be less reliable than with clinical equipment.
 
 ### no user study
 
-the accessibility claim, that this makes neuroscience "more accessible",
-is not measured but is a subjective aspiration.
+the accessibility claim — that this makes neuroscience more
+accessible — is not measured. it is an aspiration. measuring it
+would require user testing that the project has not conducted.
 
+### live mode is unbuilt
+
+the live-neurofeedback direction is documented (`rationale.md`) but
+not implemented. claims about it are about the design, not the
+artifact.
 ---
 
 ## what we do claim
 
 - the mapping is documented and motivated, not arbitrary.
-- the code is a faithful implementation of that mapping.
+- the code is a faithful implementation of the mapping.
 - the sonification is faithful to the electrode signal.
-- the interactive interface works without prior EEG knowledge.
-
-those four claims are checkable and defensible. everything above
-this section is what we don't claim, and the gap between them is the
-project's scope.
+- the interactive interface works without prior eeg knowledge.
+- the system degrades gracefully under data and environment faults
+  (see `robustness.md`).
