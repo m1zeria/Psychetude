@@ -1,4 +1,4 @@
-# Python
+# python
 __pycache__/
 *.py[cod]
 .venv/
@@ -6,16 +6,16 @@ venv/
 *.egg-info/
 .pytest_cache/
 
-# Data (large EEG files, don't commit)
+# data (large EEG files, don't commit)
 pipeline/data/raw/
 pipeline/data/processed/*.fif
 pipeline/data/processed/*.edf
 pipeline/data/processed/*.set
 
-# Keep sample outputs
+# keep sample outputs
 !pipeline/data/processed/sample.json
 
-# Node
+# node
 node_modules/
 web/dist/
 web/.vite/
