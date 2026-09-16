@@ -1,8 +1,7 @@
 # Psychetude
 A brain wave sonification instrument.
 
-# Psychetude
-
+### Etymology
 from *psyche* (mind) + *étude* (study)
 
 Real EEG band power is mapped to musical parameters using Fast Fourier Transforms (FFTs)
