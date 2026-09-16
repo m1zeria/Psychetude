@@ -1,6 +1,6 @@
 /**
  *
- * DESIGN INTENT (fill in after reading sonification literature):
+ * design intent:
  *   - alpha power → pitch (log-frequency mapping)
  *   - beta power  → FM modulation index (brightness)
  *   - theta power → duration (temporal extent)
