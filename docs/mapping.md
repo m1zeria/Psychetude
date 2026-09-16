@@ -1,21 +1,20 @@
-# Sonification Mapping (Phase 3)
+# sonification mapping
 
-This document is the *design contract* for how EEG band power becomes sound.
-Update it whenever the code in `web/src/audio/mapping.js` changes.
+this document is the *design contract* for how EEG band power becomes sound
+update it whenever the code in `web/src/audio/mapping.js` changes
 
-## Principle: log-frequency pitch
+## principle: log-frequency pitch
 
-Pitch is mapped linearly in MIDI space, which is logarithmic in Hz:
+pitch is mapped linearly in MIDI space, which is logarithmic in Hz:
 
     freq = 440 * 2 ** ((midi - 69) / 12)
 
-This is standard practice in sonification because human pitch perception is
-approximately logarithmic. Linear Hz mapping produces perceptually compressed
-high-end motion and wasted low-end motion, thus logarithmic sonification is the sweet spot.
+this is standard practice in sonification because human pitch perception is
+approximately logarithmic. linear Hz mapping produces compressed high-end motion and wasted low-end motion. thus logarithmic sonification is the sweet spot.
 
 ## Proposed band → parameter map
 
-| EEG band | Sound parameter      | Rationale (to fill in w/ citations) |
+| EEG band | Sound parameter      | Rationale |
 |----------|----------------------|-------------------------------------|
 | delta    | amplitude            |                                     |
 | theta    | duration             |                                     |
@@ -23,13 +22,13 @@ high-end motion and wasted low-end motion, thus logarithmic sonification is the 
 | beta     | FM modulation index  |                                     |
 | gamma    | harmonicity          |                                     |
 
-## Normalisation
+## normalisation
 
-Band power arrives from the pipeline as `log10(mean PSD)` per band per channel.
-Observed range across the sample data is roughly `[-13, -7]`. Normalisation
+band power arrives from the pipeline as `log10(mean PSD)` per band per channel.
+observed range across the sample data is roughly `[-13, -7]`. normalisation
 clamps to this range and linearly maps to `[0, 1]`.
 
-## TODO
+## TO-DO
 
 - [ ] Cite log-frequency sonification literature here
 - [ ] Decide whether pitch is per-channel absolute or relative to a reference
