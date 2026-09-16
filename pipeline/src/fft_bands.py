@@ -22,7 +22,9 @@ def window_fft(data: np.ndarray, sfreq: float, window_fn: str = "hann"):
     freqs = np.fft.rfftfreq(n_samples, d=1.0 / sfreq)
 
     # Power spectral density (normalise by window energy)
-    power = (np.abs(spec) ** 2) / (sfreq * np.sum(w ** 2))
+    # compute norm once instead of per-element operations
+    window_norm = sfreq * np.sum(w ** 2)
+    power = (np.abs(spec) ** 2) / window_norm
     power[:, 1:-1] *= 2.0  # one-sided correction
 
     return freqs, power
