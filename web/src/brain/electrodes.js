@@ -53,6 +53,7 @@ export function attachElectrodes({ brain, scene, camera, channels, onSelect }) {
     const hits = raycaster.intersectObjects(nodes);
     if (hits.length > 0) {
       const { channelIndex, channelName } = hits[0].object.userData;
+      // pass current frame index (0 for now, can be extended with timeline)
       onSelect(channelIndex, channelName, 0);
     }
   });
