@@ -21,7 +21,7 @@ async function boot() {
       if (!frameData) { setStatus('no data'); return; }
       engine.play(channelIndex, channelName, frameData.bands)
         .then((chord) => {
-          updateHUD(channelName, channelIndex, chord, data.meta.bands);
+          updateHUD(channelName, channelIndex, chord, engine.getMode());
           if (!engine.isAvailable()) setStatus('audio unavailable — visual only');
         })
         .catch((e) => { console.error(e); setStatus('playback error — see console'); });
