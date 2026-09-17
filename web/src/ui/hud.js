@@ -1,20 +1,21 @@
-export function updateHUD(channelName, channelIndex, chord, bandDefs) {
+export function updateHUD(channelName, channelIndex, chord, mode) {
   const el = document.getElementById('readout');
   if (!el) return;
-  el.replaceChildren();
 
-  const title = document.createElement('div');
-  const strong = document.createElement('strong');
-  strong.textContent = channelName;
-  title.append(strong, ` #${channelIndex}`);
-  el.appendChild(title);
-
-  for (const voice of Array.isArray(chord) ? chord : []) {
-    const row = document.createElement('div');
-    const band = document.createElement('span');
-    band.className = 'band';
-    band.textContent = voice.band;
-    row.append(band, ` ${Number(voice.freq).toFixed(1)}hz g:${Number(voice.gain).toFixed(2)}`);
-    el.appendChild(row);
+  if (!Array.isArray(chord) || chord.length === 0) {
+    el.innerHTML = `<div><strong>${channelName}</strong></div>`;
+    return;
   }
+
+  const rows = chord
+    .map((v) => {
+      const f = Number.isFinite(v.freq) ? v.freq.toFixed(1) : '--';
+      const g = Number.isFinite(v.gain) ? v.gain.toFixed(2) : '--';
+      return `<div><span class="band">${v.band}</span> <span class="freq">${f} hz</span> <span class="gain">g ${g}</span></div>`;
+    })
+    .join('');
+
+  el.innerHTML =
+    `<div><strong>${channelName}</strong> <span class="idx">#${channelIndex}</span> <span class="mode">${mode}</span></div>` +
+    rows;
 }
