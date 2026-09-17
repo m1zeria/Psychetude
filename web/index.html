@@ -3,15 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Psychetude</title>
+  <title>psychetude</title>
   <link rel="stylesheet" href="./styles/main.css" />
 </head>
 <body>
   <div id="app">
     <canvas id="scene"></canvas>
     <div id="hud">
-      <h1>Psychetude</h1>
+      <h1>psychetude</h1>
       <p id="status">click the brain to begin</p>
+      <div id="controls">
+        <label class="mode">
+          <input type="radio" name="mode" value="aesthetic" checked />
+          aesthetic
+        </label>
+        <label class="mode">
+          <input type="radio" name="mode" value="raw" />
+          raw
+        </label>
+      </div>
       <div id="readout"></div>
     </div>
   </div>
