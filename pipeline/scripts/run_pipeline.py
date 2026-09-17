@@ -15,7 +15,7 @@ def main():
     root = Path(__file__).resolve().parents[1]
     cfg = yaml.safe_load((root / "config.yaml").read_text())
 
-    raw_path = root / cfg["dataset"]["raw_dir"] / "sub-01_run-03_raw.fif"
+    raw_path = root / cfg["dataset"]["raw_dir"] / cfg["dataset"]["filename"]
     raw = load_raw(raw_path)
     raw = preprocess(raw, cfg)
 
