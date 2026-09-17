@@ -2,13 +2,15 @@ import * as Tone from 'tone';
 import { bandPowerToChord } from './mapping.js';
 
 export function createEngine() {
-  const voices = new Map();
+  const maxVoices = 8;
+  const voices = [];
+  let nextVoice = 0;
   let started = false;
-  let available = true; // set false if tone fails to load
+  let available = true;
   let mode = 'aesthetic';
 
   async function ensureStarted() {
-    if (started) return;
+    if (started || !available) return;
     try {
       await Tone.start();
       started = true;
@@ -18,62 +20,48 @@ export function createEngine() {
     }
   }
 
-  function getVoice(channelIndex) {
-    if (voices.has(channelIndex)) return voices.get(channelIndex);
-
-    const synth = new Tone.PolySynth(Tone.FMSynth, {
-      harmonicity: 2,
-      modulationIndex: 6,
-      envelope: {
-        attack: 0.05,
-        decay: 0.3,
-        sustain: 0.5,
-        release: 0.8,
-      },
-    }).toDestination();
-
-    const voice = { synth };
-    voices.set(channelIndex, voice);
+  function getVoice() {
+    if (voices.length < maxVoices) {
+      try {
+        voices.push(new Tone.PolySynth(Tone.FMSynth, {
+          harmonicity: 2, modulationIndex: 6,
+          envelope: { attack: 0.05, decay: 0.3, sustain: 0.5, release: 0.8 },
+        }).toDestination());
+      } catch (e) {
+        console.warn('voice creation failed — audio disabled', e);
+        available = false;
+        return null;
+      }
+    }
+    const voice = voices[nextVoice % voices.length];
+    nextVoice = (nextVoice + 1) % maxVoices;
     return voice;
   }
 
-  /**
-   * play the five-voice chord for one electrode.
-   * returns the chord that was played (or null if audio was
-   * unavailable), so the caller can update the hud regardless.
-   */
   async function play(channelIndex, channelName, bands) {
     const chord = bandPowerToChord(bands, channelIndex, mode);
-
-    if (!available) return chord;
-
     await ensureStarted();
     if (!available) return chord;
-
-    const { synth } = getVoice(channelIndex);
-
+    const synth = getVoice();
+    if (!synth) return chord;
     for (const v of chord) {
-      try {
-        synth.triggerAttackRelease(v.freq, v.duration, undefined, v.gain);
-      } catch (e) {
-        console.warn('voice playback failed', e);
-        // one voice failing does not stop the others
-      }
+      try { synth.triggerAttackRelease(v.freq, v.duration, undefined, v.gain); }
+      catch (e) { console.warn('voice playback failed', e); }
     }
     return chord;
   }
 
-  function setMode(next) {
-    mode = next;
+  function dispose() {
+    for (const synth of voices) synth.dispose();
+    voices.length = 0;
+    started = false;
   }
 
-  function getMode() {
-    return mode;
-  }
-
-  function isAvailable() {
-    return available;
-  }
-
-  return { play, setMode, getMode, isAvailable };
+  return {
+    play,
+    setMode: (next) => { mode = next; },
+    getMode: () => mode,
+    isAvailable: () => available,
+    dispose,
+  };
 }

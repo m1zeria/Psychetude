@@ -1,28 +1,20 @@
 export function updateHUD(channelName, channelIndex, chord, bandDefs) {
   const el = document.getElementById('readout');
   if (!el) return;
+  el.replaceChildren();
 
-  const rows = chord
-    .map(
-      (v) =>
-        `<div>` +
-        `<span class="band">${v.band}</span> ` +
-        `<span class="freq">${v.freq.toFixed(1)}hz</span> ` +
-        `<span class="gain">g:${v.gain.toFixed(2)}</span>` +
-        `</div>`,
-    )
-    .join('');
+  const title = document.createElement('div');
+  const strong = document.createElement('strong');
+  strong.textContent = channelName;
+  title.append(strong, ` #${channelIndex}`);
+  el.appendChild(title);
 
-  el.innerHTML =
-    `<div><strong>${channelName}</strong> <span class="idx">#${channelIndex}</span></div>` +
-    rows;
-}export function updateHUD(channelName, bands, bandDefs) {
-  const el = document.getElementById('readout');
-  const rows = Object.keys(bandDefs)
-    .map((b) => {
-      const v = bands[b]?.[0] ?? 0;
-      return `<div><span class="band">${b}</span> ${v.toFixed(3)}</div>`;
-    })
-    .join('');
-  el.innerHTML = `<div><strong>${channelName}</strong></div>${rows}`;
+  for (const voice of Array.isArray(chord) ? chord : []) {
+    const row = document.createElement('div');
+    const band = document.createElement('span');
+    band.className = 'band';
+    band.textContent = voice.band;
+    row.append(band, ` ${Number(voice.freq).toFixed(1)}hz g:${Number(voice.gain).toFixed(2)}`);
+    el.appendChild(row);
+  }
 }
