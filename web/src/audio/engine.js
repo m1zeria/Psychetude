@@ -1,49 +1,79 @@
 import * as Tone from 'tone';
-import { bandPowerToSound } from './mapping.js';
+import { bandPowerToChord } from './mapping.js';
 
 export function createEngine() {
-  const synthPool = [];
-  const maxSynths = 8;
-  let currentSynthIdx = 0;
+  const voices = new Map();
   let started = false;
+  let available = true; // set false if tone fails to load
+  let mode = 'aesthetic';
 
   async function ensureStarted() {
     if (started) return;
-    await Tone.start();
-    started = true;
-  }
-
-  function initSynthPool() {
-    // pre-allocate a fixed pool of synths to avoid unbounded DSP node creation
-    for (let i = 0; i < maxSynths; i++) {
-      const synth = new Tone.PolySynth(Tone.FMSynth, {
-        harmonicity: 2,
-        modulationIndex: 6,
-        envelope: { attack: 0.05, decay: 0.3, sustain: 0.5, release: 0.8 },
-      }).toDestination();
-      synthPool.push(synth);
+    try {
+      await Tone.start();
+      started = true;
+    } catch (e) {
+      console.warn('tone start failed — audio disabled', e);
+      available = false;
     }
   }
 
-  function getSynth() {
-    // round-robin: reuse synths in order to avoid accumulating audio objects
-    const synth = synthPool[currentSynthIdx];
-    currentSynthIdx = (currentSynthIdx + 1) % maxSynths;
-    return synth;
+  function getVoice(channelIndex) {
+    if (voices.has(channelIndex)) return voices.get(channelIndex);
+
+    const synth = new Tone.PolySynth(Tone.FMSynth, {
+      harmonicity: 2,
+      modulationIndex: 6,
+      envelope: {
+        attack: 0.05,
+        decay: 0.3,
+        sustain: 0.5,
+        release: 0.8,
+      },
+    }).toDestination();
+
+    const voice = { synth };
+    voices.set(channelIndex, voice);
+    return voice;
   }
 
+  /**
+   * play the five-voice chord for one electrode.
+   * returns the chord that was played (or null if audio was
+   * unavailable), so the caller can update the hud regardless.
+   */
   async function play(channelIndex, channelName, bands) {
+    const chord = bandPowerToChord(bands, channelIndex, mode);
+
+    if (!available) return chord;
+
     await ensureStarted();
-    const synth = getSynth();
-    const { freq, duration } = bandPowerToSound(bands, channelIndex);
-    synth.triggerAttackRelease(freq, duration);
+    if (!available) return chord;
+
+    const { synth } = getVoice(channelIndex);
+
+    for (const v of chord) {
+      try {
+        synth.triggerAttackRelease(v.freq, v.duration, undefined, v.gain);
+      } catch (e) {
+        console.warn('voice playback failed', e);
+        // one voice failing does not stop the others
+      }
+    }
+    return chord;
   }
 
-  // lazy-init pool on first play call
-  return {
-    play: async (channelIndex, channelName, bands) => {
-      if (synthPool.length === 0) initSynthPool();
-      return play(channelIndex, channelName, bands);
-    },
-  };
+  function setMode(next) {
+    mode = next;
+  }
+
+  function getMode() {
+    return mode;
+  }
+
+  function isAvailable() {
+    return available;
+  }
+
+  return { play, setMode, getMode, isAvailable };
 }
