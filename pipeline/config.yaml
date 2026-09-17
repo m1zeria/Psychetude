@@ -1,10 +1,11 @@
 # edit here, not in code.
 
 dataset:
-  subject: 1
-  run: 3
+  subject: null
+  run: null
   raw_dir: data/raw
-
+  filename: fixture.fif
+  
 preprocessing:
   l_freq: 0.5
   h_freq: 45.0
