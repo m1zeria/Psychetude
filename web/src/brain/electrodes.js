@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
-// Approximate 10-20 positions in unit-sphere space.
-// Replace with proper projection onto the mesh later.
+// canonical 10-20 positions in unit-sphere space.
+// approximated by hand; projection onto a real mesh is future work.
 const TEN_TWENTY = {
   Fp1: [-0.25,  0.55, 0.75], Fp2: [ 0.25,  0.55, 0.75],
   F7:  [-0.65,  0.25, 0.55], F3:  [-0.30,  0.35, 0.80],
@@ -16,7 +16,20 @@ const TEN_TWENTY = {
   O1:  [-0.25, -0.65, 0.60], O2:  [ 0.25, -0.65, 0.60],
 };
 
-export function attachElectrodes({ brain, scene, camera, channels, onSelect }) {
+// default position for unknown channels. distributed on a ring so
+// they don't all stack at one point. deterministic by index.
+function fallbackPosition(index, total) {
+  const angle = (index / Math.max(1, total)) * Math.PI * 2;
+  return [0.6 * Math.cos(angle), 0.4, 0.6 * Math.sin(angle)];
+}
+
+export function attachElectrodes({
+  brain,
+  scene,
+  camera,
+  channels,
+  onSelect,
+}) {
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
   const nodes = [];
@@ -24,9 +37,11 @@ export function attachElectrodes({ brain, scene, camera, channels, onSelect }) {
   const group = new THREE.Group();
   brain.add(group);
 
+  const knownCount = channels.filter((c) => TEN_TWENTY[c]).length;
+  let unknownSeen = 0;
+
   channels.forEach((name, i) => {
-    const pos = TEN_TWENTY[name];
-    if (!pos) return;
+    const pos = TEN_TWENTY[name] ?? fallbackPosition(unknownSeen++, knownCount + 1);
 
     const geo = new THREE.SphereGeometry(0.035, 16, 16);
     const mat = new THREE.MeshStandardMaterial({
@@ -42,19 +57,28 @@ export function attachElectrodes({ brain, scene, camera, channels, onSelect }) {
   });
 
   const canvas = document.getElementById('scene');
+  if (!canvas) return;
 
   canvas.addEventListener('pointermove', (e) => {
     pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
     pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
   });
 
+  let lastClick = 0;
   canvas.addEventListener('pointerdown', () => {
+    const now = performance.now();
+    if (now - lastClick < 80) return; // debounce double-fire
+    lastClick = now;
+
     raycaster.setFromCamera(pointer, camera);
     const hits = raycaster.intersectObjects(nodes);
-    if (hits.length > 0) {
-      const { channelIndex, channelName } = hits[0].object.userData;
-      // pass current frame index (0 for now, can be extended with timeline)
+    if (hits.length === 0) return;
+
+    const { channelIndex, channelName } = hits[0].object.userData;
+    try {
       onSelect(channelIndex, channelName, 0);
+    } catch (e) {
+      console.warn('onSelect failed', e);
     }
   });
 }
